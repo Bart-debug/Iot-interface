@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Humidity and Temperature Graph</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Create a canvas element to render the chart -->
+    <canvas id="myChart" width="600" height="300"></canvas>
+
+    <script>
+        // Get chart data from get_chart_data.php using Fetch API
+        fetch('get_chart_data.php?type=humidity')
+            .then(response => response.json())
+            .then(humidityData => {
+                fetch('get_chart_data.php?type=temperature')
+                    .then(response => response.json())
+                    .then(temperatureData => {
+                        // Get the canvas element
+                        var ctx = document.getElementById('myChart').getContext('2d');
+
+                        // Create a chart with Chart.js
+                        var myChart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: Array.from({ length: humidityData.length }, (_, i) => 'Sample ' + (i + 1)),
+                                datasets: [
+                                    {
+                                        label: 'Humidity',
+                                        data: humidityData,
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 2,
+                                        pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                                        fill: false
+                                    },
+                                    {
+                                        label: 'Temperature',
+                                        data: temperatureData,
+                                        borderColor: 'rgba(255, 99, 132, 1)',
+                                        borderWidth: 2,
+                                        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+                                        fill: false
+                                    }
+                                ]
+                            },
+                            options: {
+                                scales: {
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        }
+                                    },
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            stepSize: 10
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: 'Humidity and Temperature Trends',
+                                        font: {
+                                            size: 18,
+                                            weight: 'bold'
+                                        }
+                                    },
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            font: {
+                                                size: 14
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .catch(error => console.error('Error fetching temperature data:', error));
+            })
+            .catch(error => console.error('Error fetching humidity data:', error));
+    </script>
+</body>
+</html>
